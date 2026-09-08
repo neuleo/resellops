@@ -16,9 +16,9 @@
 | :--- | :--- | :---: | :--- |
 | **Phase 1** | **Core Database, Schema & Business-Logik** | ✅ Abgeschlossen | SQLite, Migration aller 14 Deals, § 25a USt-Rechner, 26/26 Tests grün |
 | **Phase 2** | **ResellOps MCP-Server** | ✅ Abgeschlossen | Stdio-MCP-Server mit 5 Deal-Tools, 30/30 Tests grün, Git synced |
-| **Phase 3** | **REST Backend API & Webhooks** | ⏳ Bereit für Worker | FastAPI Endpoints, Statuswechsel, WebSocket für Live-Updates |
-| **Phase 4** | **Frontend Kanban-Dashboard** | ⏸️ Geplant | Responsive Web-UI (Tailwind), 1-Click PayPal-Copy & Payment-Trigger |
-| **Phase 5** | **Rebuy- & DHL-Automation Microservice** | ⏸️ Geplant | Headless Rebuy-Order-Erstellung, QR-Code Extractor & Chat-Injektor |
+| **Phase 3** | **REST Backend API & Webhooks** | ✅ Abgeschlossen | FastAPI Endpoints, Statuswechsel, Live-KPIs, 34/34 Tests grün |
+| **Phase 4** | **Frontend Kanban-Dashboard** | ✅ Abgeschlossen | Dark-Mode Kanban UI, 1-Click PayPal Copy & Trigger, Docker Container aktiv |
+| **Phase 5** | **Rebuy- & DHL-Automation Microservice** | ⏳ Nächster Schritt | Headless Rebuy-Order-Erstellung, QR-Code Extractor & Chat-Injektor |
 | **Phase 6** | **Docker Compose, GitHub CI & Invoice Ninja Sync** | ⏸️ Geplant | Multi-Container-Setup, Rechnungs-Export an Invoice Ninja API |
 
 ---
