@@ -36,7 +36,9 @@ from core.calculator import calculate_margin_and_vat, calculate_paypal_gross
 from app.schemas import StatusUpdateRequest, PayoutRequest, DeleteResponse
 from app.websocket import ws_manager
 
-STATIC_DIR = Path(__file__).resolve().parent / "static"
+STATIC_DIR = Path(__file__).resolve().parent.parent / "frontend"
+if not STATIC_DIR.exists():
+    STATIC_DIR = Path("/app/frontend")
 
 
 @asynccontextmanager
@@ -310,18 +312,20 @@ async def websocket_endpoint(websocket: WebSocket):
         ws_manager.disconnect(websocket)
 
 
-# ---------------------------------------------------------
-# Frontend Static Files Mount
-# ---------------------------------------------------------
-
-if STATIC_DIR.exists():
-    app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
-
-
 @app.get("/", include_in_schema=False)
+@app.get("/index.html", include_in_schema=False)
+@app.get("/index.htm", include_in_schema=False)
 async def serve_dashboard():
     """Serves the single-page Kanban dashboard."""
     index_file = STATIC_DIR / "index.html"
     if index_file.exists():
         return FileResponse(str(index_file))
-    return JSONResponse({"message": "ResellOps API running. Dashboard UI under /static/index.html"})
+    return JSONResponse({"message": "ResellOps API running. Dashboard index.html not found."})
+
+
+# ---------------------------------------------------------
+# Frontend Static Files Mount
+# ---------------------------------------------------------
+
+if STATIC_DIR.exists():
+    app.mount("/static", StaticFiles(directory=str(STATIC_DIR), html=True), name="static")
