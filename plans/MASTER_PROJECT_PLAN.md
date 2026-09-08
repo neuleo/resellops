@@ -14,8 +14,8 @@
 
 | Phase | Modul / Fokus | Status | Zieldatum / Meilenstein |
 | :--- | :--- | :---: | :--- |
-| **Phase 1** | **Core Database, Schema & Business-Logik** | ⏳ Bereit für Worker | SQLite, Migration existierender Deals, § 25a USt-Rechner, PayPal-Formel |
-| **Phase 2** | **ResellOps MCP-Server** | ⏸️ Geplant | MCP-Tools für Hermes-Cronjobs (Deals erfassen, verschieben, abfragen) |
+| **Phase 1** | **Core Database, Schema & Business-Logik** | ✅ Abgeschlossen | SQLite, Migration aller 14 Deals, § 25a USt-Rechner, 26/26 Tests grün |
+| **Phase 2** | **ResellOps MCP-Server** | ⏳ Bereit für Worker | MCP-Tools für Hermes-Cronjobs (Deals erfassen, verschieben, abfragen) |
 | **Phase 3** | **REST Backend API & Webhooks** | ⏸️ Geplant | FastAPI Endpoints, Statuswechsel, WebSocket für Live-Updates |
 | **Phase 4** | **Frontend Kanban-Dashboard** | ⏸️ Geplant | Responsive Web-UI (Tailwind), 1-Click PayPal-Copy & Payment-Trigger |
 | **Phase 5** | **Rebuy- & DHL-Automation Microservice** | ⏸️ Geplant | Headless Rebuy-Order-Erstellung, QR-Code Extractor & Chat-Injektor |
