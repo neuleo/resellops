@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  resellops:
+    build: .
+    image: resellops:latest
+    container_name: resellops-app
+    restart: unless-stopped
+    ports:
+      - "8088:8088"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - PYTHONUNBUFFERED=1
+      - DATA_DIR=/app/data

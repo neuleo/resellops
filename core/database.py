@@ -324,18 +324,30 @@ def delete_deal(
 
 def list_deals(
     status: Optional[Union[DealStatus, str]] = None,
+    search: Optional[str] = None,
     limit: int = 100,
     offset: int = 0,
     db_path: Optional[Union[str, Path]] = None,
 ) -> List[Deal]:
-    """Returns a list of deals, optionally filtered by status, sorted by id ASC."""
+    """Returns a list of deals, optionally filtered by status and search keyword, sorted by id ASC."""
     sql = "SELECT * FROM deals"
+    conditions: List[str] = []
     params: List[Any] = []
 
     if status:
         stat_val = status.value if isinstance(status, DealStatus) else str(status)
-        sql += " WHERE status = ?"
+        conditions.append("status = ?")
         params.append(stat_val)
+
+    if search:
+        search_pattern = f"%{search.strip()}%"
+        conditions.append(
+            "(product LIKE ? OR seller_name LIKE ? OR rebuy_trn LIKE ? OR dhl_tracking LIKE ? OR campaign_name LIKE ?)"
+        )
+        params.extend([search_pattern] * 5)
+
+    if conditions:
+        sql += " WHERE " + " AND ".join(conditions)
 
     sql += " ORDER BY id ASC LIMIT ? OFFSET ?"
     params.extend([limit, offset])
