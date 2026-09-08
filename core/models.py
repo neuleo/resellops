@@ -47,6 +47,9 @@ class DealBase(BaseModel):
     dhl_tracking: Optional[str] = Field(default=None, description="DHL shipping tracking number")
     serial_number: Optional[str] = Field(default=None, description="Device serial number (Apple SN)")
     order_number: Optional[str] = Field(default=None, description="Internal or marketplace order reference")
+    listing_url: Optional[str] = Field(default=None, description="URL of original Kleinanzeigen listing")
+    seller_paypal_email: Optional[str] = Field(default=None, description="PayPal payment email of seller")
+    campaign_name: Optional[str] = Field(default=None, description="Campaign identifier or search label")
     notes: Optional[str] = Field(default=None, description="Additional context or handover notes")
 
 
@@ -107,6 +110,9 @@ class DealUpdate(BaseModel):
     dhl_tracking: Optional[str] = None
     serial_number: Optional[str] = None
     order_number: Optional[str] = None
+    listing_url: Optional[str] = None
+    seller_paypal_email: Optional[str] = None
+    campaign_name: Optional[str] = None
     notes: Optional[str] = None
 
 
@@ -124,8 +130,11 @@ class PipelineSummary(BaseModel):
     completed_deals: int = Field(default=0, description="Completed deals")
     cancelled_deals: int = Field(default=0, description="Cancelled / refunded deals")
     status_counts: Dict[str, int] = Field(default_factory=dict, description="Count per DealStatus")
+    active_capital_tied: Decimal = Field(default=Decimal("0.00"), description="Capital currently tied in active deals")
     total_spent: Decimal = Field(default=Decimal("0.00"), description="Total purchase capital deployed")
     total_revenue: Decimal = Field(default=Decimal("0.00"), description="Total revenue generated from sales")
     total_gross_margin: Decimal = Field(default=Decimal("0.00"), description="Cumulative gross profit")
     total_vat_25a: Decimal = Field(default=Decimal("0.00"), description="Cumulative § 25a UStG differential tax")
     total_net_profit: Decimal = Field(default=Decimal("0.00"), description="Cumulative net profit")
+    realized_net_profit: Decimal = Field(default=Decimal("0.00"), description="Realized net profit from completed deals")
+    expected_net_profit: Decimal = Field(default=Decimal("0.00"), description="Projected net profit for active deals with Rebuy quotes")

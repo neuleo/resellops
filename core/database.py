@@ -85,6 +85,9 @@ def init_db(db_path: Optional[Union[str, Path]] = None) -> None:
                 dhl_tracking TEXT,
                 serial_number TEXT,
                 order_number TEXT,
+                listing_url TEXT,
+                seller_paypal_email TEXT,
+                campaign_name TEXT,
                 notes TEXT,
                 created_at TEXT NOT NULL,
                 updated_at TEXT NOT NULL
@@ -95,6 +98,17 @@ def init_db(db_path: Optional[Union[str, Path]] = None) -> None:
             CREATE INDEX IF NOT EXISTS idx_deals_seller ON deals(seller_name);
             CREATE INDEX IF NOT EXISTS idx_deals_buy_date ON deals(buy_date);
         """)
+
+        # Ensure columns added in Phase 2 exist if upgrading existing DB
+        cursor = conn.cursor()
+        cursor.execute("PRAGMA table_info(deals);")
+        existing_cols = {col[1] for col in cursor.fetchall()}
+        for col_name in ["listing_url", "seller_paypal_email", "campaign_name"]:
+            if col_name not in existing_cols:
+                cursor.execute(f"ALTER TABLE deals ADD COLUMN {col_name} TEXT;")
+
+        # Create campaign index after ensuring column exists
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_deals_campaign ON deals(campaign_name);")
 
 
 def _row_to_deal(row: sqlite3.Row) -> Deal:
@@ -151,12 +165,14 @@ def create_deal(
             purchase_price_net, paypal_gross_amount, selling_price,
             gross_margin, vat_25a, net_profit,
             rebuy_trn, dhl_tracking, serial_number, order_number, notes,
+            listing_url, seller_paypal_email, campaign_name,
             created_at, updated_at
         ) VALUES (
             :product, :seller_name, :status, :buy_date, :sell_date,
             :purchase_price_net, :paypal_gross_amount, :selling_price,
             :gross_margin, :vat_25a, :net_profit,
             :rebuy_trn, :dhl_tracking, :serial_number, :order_number, :notes,
+            :listing_url, :seller_paypal_email, :campaign_name,
             :created_at, :updated_at
         )
     """
@@ -178,6 +194,9 @@ def create_deal(
         "serial_number": deal.serial_number,
         "order_number": deal.order_number,
         "notes": deal.notes,
+        "listing_url": deal.listing_url,
+        "seller_paypal_email": deal.seller_paypal_email,
+        "campaign_name": deal.campaign_name,
         "created_at": now_iso,
         "updated_at": now_iso,
     }
@@ -365,4 +384,35 @@ def get_pipeline_summary(
             summary.total_vat_25a = _round_currency(Decimal(str(row["total_vat_25a"] or 0)))
             summary.total_net_profit = _round_currency(Decimal(str(row["total_net_profit"] or 0)))
 
+        # Active capital tied & expected net profit (active deals)
+        cursor.execute("""
+            SELECT
+                SUM(COALESCE(paypal_gross_amount, purchase_price_net, 0)) as active_capital,
+                SUM(COALESCE(net_profit, 0)) as expected_net_profit
+            FROM deals
+            WHERE status NOT IN ('COMPLETED', 'CANCELLED')
+        """)
+        active_row = cursor.fetchone()
+        if active_row:
+            summary.active_capital_tied = _round_currency(Decimal(str(active_row["active_capital"] or 0)))
+            summary.expected_net_profit = _round_currency(Decimal(str(active_row["expected_net_profit"] or 0)))
+
+        # Realized net profit (completed deals)
+        cursor.execute("""
+            SELECT
+                SUM(COALESCE(net_profit, 0)) as realized_net_profit
+            FROM deals
+            WHERE status = 'COMPLETED'
+        """)
+        comp_row = cursor.fetchone()
+        if comp_row:
+            summary.realized_net_profit = _round_currency(Decimal(str(comp_row["realized_net_profit"] or 0)))
+
     return summary
+
+
+def get_pending_payments(
+    db_path: Optional[Union[str, Path]] = None,
+) -> List[Deal]:
+    """Retrieves all deals waiting for PayPal payment (status == PAYPAL_PENDING)."""
+    return list_deals(status=DealStatus.PAYPAL_PENDING, db_path=db_path)
